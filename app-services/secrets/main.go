@@ -19,9 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/edgexfoundry/app-functions-sdk-go/appcontext"
 	"github.com/edgexfoundry/app-functions-sdk-go/appsdk"
-	"github.com/edgexfoundry/app-functions-sdk-go/pkg/transforms"
 )
 
 const (
@@ -44,25 +42,13 @@ func main() {
 		os.Exit(-1)
 	}
 
-	// 2) shows how to access the application's specific configuration settings.
-	deviceNames, err := edgexSdk.GetAppSettingStrings("DeviceNames")
-	if err != nil {
-		edgexSdk.LoggingClient.Error(err.Error())
-		os.Exit(-1)
-	}
-	edgexSdk.LoggingClient.Info(fmt.Sprintf("Filtering for devices %v", deviceNames))
-
 	// 3) This is our pipeline configuration, the collection of functions to
 	// execute every time an event is triggered.
-	edgexSdk.SetFunctionsPipeline(
-		transforms.NewFilter(deviceNames).FilterByDeviceName,
-		transforms.NewConversion().TransformToXML,
-		getSecretsToConsole,
-	)
+	edgexSdk.SetFunctionsPipeline()
 
 	// 4) Lastly, we'll go ahead and tell the SDK to "start" and begin listening for events
 	// to trigger the pipeline.
-	err = edgexSdk.MakeItRun()
+	err := edgexSdk.MakeItRun()
 	if err != nil {
 		edgexSdk.LoggingClient.Error("MakeItRun returned error: ", err.Error())
 		os.Exit(-1)
@@ -71,28 +57,4 @@ func main() {
 	// Do any required cleanup here
 
 	os.Exit(0)
-}
-
-func getSecretsToConsole(edgexcontext *appcontext.Context, params ...interface{}) (bool, interface{}) {
-	if len(params) < 1 {
-		// We didn't receive a result
-		return false, nil
-	}
-
-	var err error
-
-	err = getSecrets(edgexcontext, secureSecretsData, true)
-	if err != nil {
-		edgexcontext.LoggingClient.Error(err.Error())
-		return false, nil
-	}
-
-	err = getSecrets(edgexcontext, insecureSecretsData, false)
-	if err != nil {
-		edgexcontext.LoggingClient.Error(err.Error())
-		return false, nil
-	}
-
-	edgexcontext.Complete([]byte(params[0].(string)))
-	return false, nil
 }

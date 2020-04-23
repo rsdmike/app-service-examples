@@ -55,14 +55,33 @@ Timeout = "30s"
 [SecretStore]
   Host = 'localhost'
   Port = 8200
-  Path = '/v1/secret/edgex/appservice'
+  Path = '/v1/secret/edgex/edgex-appservice/'
   Protocol = 'http'
-  Tokenfile = 'res/token.json'
+  ServerName = 'edgex-vault'
+  TokenFile = './res/token.json'
+  # Number of attempts to retry retrieving secrets before failing to start the service.
+  AdditionalRetryAttempts = 10
+  # Amount of time to wait before attempting another retry
+  RetryWaitPeriod = "1s"
 
   [SecretStore.Authentication]
   AuthType = 'X-Vault-Token'
-  # Vault root token that's used for authentication
-  AuthToken = 's.gqPWPkpjYfEA7bB8SSgEdr24'
+
+[SecretStoreExclusive]
+  Host = 'localhost'  
+  Port = 8200
+  Path = '/v1/secret/edgex/edgex-appservice/'
+  Protocol = 'http'
+  ServerName = 'edgex-vault'
+  TokenFile = './res/token.json'
+  # Number of attempts to retry retrieving secrets before failing to start the service.
+  AdditionalRetryAttempts = 10
+  # Amount of time to wait before attempting another retry
+  RetryWaitPeriod = "1s"
+
+  [SecretStoreExclusive.Authentication]
+    AuthType = 'X-Vault-Token'
+
 
 [Clients]
   [Clients.CoreData]

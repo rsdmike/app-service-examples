@@ -56,7 +56,7 @@ func main() {
 	// 3) This is our pipeline configuration, the collection of functions to
 	// execute every time an event is triggered.
 	edgexSdk.SetFunctionsPipeline(
-		transforms.NewFilter(deviceNames).FilterByDeviceName,
+		//transforms.NewFilter(deviceNames).FilterByDeviceName,
 		transforms.NewConversion().TransformToXML,
 		printXMLToConsole,
 	)
@@ -81,6 +81,8 @@ func printXMLToConsole(edgexcontext *appcontext.Context, params ...interface{}) 
 	}
 
 	fmt.Println(params[0].(string))
+	result := edgexcontext.Configuration.ApplicationSettings["DeviceNames"]
+	fmt.Println(result)
 
 	// Leverage the built in logging service in EdgeX
 	edgexcontext.LoggingClient.Debug("XML printed to console")
